@@ -2,6 +2,7 @@ package com.daniel.shopychip.controller;
 
 import com.daniel.shopychip.dto.UserRequestDTO;
 import com.daniel.shopychip.dto.UserResponseDTO;
+import com.daniel.shopychip.dto.UserPatchDTO;
 import com.daniel.shopychip.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -48,4 +49,10 @@ public class UserController {
         List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+
+    @PatchMapping("/{id}")
+    public UserResponseDTO patchUser(@PathVariable Long id, @RequestBody UserPatchDTO patchDTO) {
+        return userService.patchUser(id, patchDTO);
+    }
+
 }
