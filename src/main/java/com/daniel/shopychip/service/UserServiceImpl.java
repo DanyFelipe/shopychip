@@ -6,9 +6,11 @@ import com.daniel.shopychip.dto.UserPatchDTO;
 import com.daniel.shopychip.exception.NotFoundException;
 import com.daniel.shopychip.model.User;
 import com.daniel.shopychip.model.Role;
+import com.daniel.shopychip.model.Country;
 import com.daniel.shopychip.mapper.UserMapper;
 import com.daniel.shopychip.repository.UserRepository;
 import com.daniel.shopychip.repository.RoleRepository;
+import com.daniel.shopychip.repository.CountryRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CountryRepository countryRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
@@ -37,7 +40,10 @@ public class UserServiceImpl implements UserService {
         Role defaultRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
-        User user = userMapper.toEntity(userRequestDTO);
+        Country country = countryRepository.findById(userRequestDTO.getCountryCode())
+                .orElseThrow(() -> new NotFoundException("Country not found: " + userRequestDTO.getCountryCode()));
+
+        User user = userMapper.toEntity(userRequestDTO,country);
 
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         user.setRegistrationDate(LocalDateTime.now());
@@ -61,7 +67,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        userMapper.updateEntity(user, userRequestDTO);
+        Country country = countryRepository.findById(userRequestDTO.getCountryCode())
+                .orElseThrow(() -> new NotFoundException("Country not found: " + userRequestDTO.getCountryCode()));
+
+        userMapper.updateEntity(user, userRequestDTO, country);
 
         if (userRequestDTO.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
@@ -99,7 +108,14 @@ public class UserServiceImpl implements UserService {
         if (patchDTO.getLastName() != null) user.setLastName(patchDTO.getLastName());
         if (patchDTO.getEmail() != null) user.setEmail(patchDTO.getEmail());
         if (patchDTO.getPhone() != null) user.setPhone(patchDTO.getPhone());
-        if (patchDTO.getCountry() != null) user.setCountry(patchDTO.getCountry());
+
+        // Validación profesional del país
+        if (patchDTO.getCountryCode() != null) {
+            Country country = countryRepository.findById(patchDTO.getCountryCode())
+                    .orElseThrow(() -> new NotFoundException("Country not found: " + patchDTO.getCountryCode()));
+            user.setCountry(country);
+        }
+
         if (patchDTO.getProfilePictureUrl() != null) user.setProfilePictureUrl(patchDTO.getProfilePictureUrl());
 
         User updated = userRepository.save(user);

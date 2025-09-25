@@ -31,8 +31,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String phone;
 
-    @Column(nullable = false)
-    private String country;
+    @ManyToOne
+    @JoinColumn(name = "country_code", referencedColumnName = "code", nullable = false)
+    private Country country;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime registrationDate;

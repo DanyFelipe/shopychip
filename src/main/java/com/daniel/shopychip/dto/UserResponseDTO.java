@@ -15,7 +15,7 @@ public class UserResponseDTO {
     private String lastName;
     private String email;
     private String phone;
-    private String country;
+    private String countryCode;
     private LocalDateTime registrationDate;
     private String profilePictureUrl;
     private Set<String> roles;

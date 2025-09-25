@@ -27,7 +27,7 @@ public class UserRequestDTO {
     private String phone;
 
     @NotBlank(message = "Country is required")
-    private String country;
+    private String countryCode;
 
     private String profilePictureUrl;
 }
