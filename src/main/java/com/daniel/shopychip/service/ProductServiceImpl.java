@@ -2,6 +2,9 @@ package com.daniel.shopychip.service;
 
 import com.daniel.shopychip.dto.ProductRequestDTO;
 import com.daniel.shopychip.dto.ProductResponseDTO;
+import com.daniel.shopychip.dto.ProductPatchDTO;
+import com.daniel.shopychip.exception.NotFoundException;
+import com.daniel.shopychip.exception.ForbiddenException;
 import com.daniel.shopychip.model.Product;
 import com.daniel.shopychip.model.User;
 import com.daniel.shopychip.repository.ProductRepository;
@@ -26,7 +29,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO, Long userId) {
         log.info("Creating product for user id: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         Product product = Product.builder()
                 .name(productRequestDTO.getName())
@@ -49,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO getProductById(Long id) {
         log.info("Fetching product with id: {}", id);
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product not found"));
         return mapToDTO(product);
     }
 
@@ -57,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO, Long userId) {
         log.info("Updating product with id: {} for user id: {}", id, userId);
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         if (!product.getUser().getId().equals(userId)) {
             throw new RuntimeException("You are not authorized to update this product.");
@@ -80,7 +83,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long id, Long userId) {
         log.info("Deleting product with id: {} for user id: {}", id, userId);
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         if (!product.getUser().getId().equals(userId)) {
             throw new RuntimeException("You are not authorized to delete this product.");
@@ -102,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponseDTO> getProductsByUser(Long userId) {
         log.info("Fetching products for user id: {}", userId);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         return productRepository.findByUser(user)
                 .stream()
                 .map(this::mapToDTO)
@@ -126,5 +129,28 @@ public class ProductServiceImpl implements ProductService {
                         ? product.getUser().getFirstName() + " " + product.getUser().getLastName()
                         : null)
                 .build();
+    }
+
+    @Override
+    public ProductResponseDTO patchProduct(Long id, ProductPatchDTO patchDTO, Long userId) {
+        log.info("Patching product with id: {} for user id: {}", id, userId);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        if (!product.getUser().getId().equals(userId)) {
+            throw new ForbiddenException("You are not authorized to update this product.");
+        }
+
+        if (patchDTO.getName() != null) product.setName(patchDTO.getName());
+        if (patchDTO.getDescription() != null) product.setDescription(patchDTO.getDescription());
+        if (patchDTO.getCategory() != null) product.setCategory(patchDTO.getCategory());
+        if (patchDTO.getPrice() != null) product.setPrice(patchDTO.getPrice());
+        if (patchDTO.getCondition() != null) product.setCondition(patchDTO.getCondition());
+        if (patchDTO.getPicturesUrls() != null) product.setPicturesUrls(patchDTO.getPicturesUrls());
+        if (patchDTO.getLocation() != null) product.setLocation(patchDTO.getLocation());
+        product.setUpdatedAt(java.time.LocalDateTime.now());
+
+        Product updated = productRepository.save(product);
+        return mapToDTO(updated);
     }
 }

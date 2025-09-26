@@ -103,13 +103,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        // Solo actualiza los campos que vengan en PATCH, nunca la contraseña
         if (patchDTO.getFirstName() != null) user.setFirstName(patchDTO.getFirstName());
         if (patchDTO.getLastName() != null) user.setLastName(patchDTO.getLastName());
         if (patchDTO.getEmail() != null) user.setEmail(patchDTO.getEmail());
         if (patchDTO.getPhone() != null) user.setPhone(patchDTO.getPhone());
 
-        // Validación profesional del país
         if (patchDTO.getCountryCode() != null) {
             Country country = countryRepository.findById(patchDTO.getCountryCode())
                     .orElseThrow(() -> new NotFoundException("Country not found: " + patchDTO.getCountryCode()));

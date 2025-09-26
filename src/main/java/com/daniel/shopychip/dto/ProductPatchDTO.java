@@ -4,15 +4,13 @@ import com.daniel.shopychip.model.ProductCondition;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductResponseDTO {
-    private Long id;
+public class ProductPatchDTO {
     private String name;
     private String description;
     private String category;
@@ -20,8 +18,4 @@ public class ProductResponseDTO {
     private ProductCondition condition;
     private List<String> picturesUrls;
     private String location;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Long userId;
-    private String userName;
 }

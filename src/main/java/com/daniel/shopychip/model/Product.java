@@ -30,7 +30,8 @@ public class Product {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private String condition; // e.g. working, for parts
+    @Enumerated(EnumType.STRING)
+    private ProductCondition condition;
 
     @ElementCollection
     private List<String> picturesUrls;

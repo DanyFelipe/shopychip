@@ -2,6 +2,7 @@ package com.daniel.shopychip.controller;
 
 import com.daniel.shopychip.dto.ProductRequestDTO;
 import com.daniel.shopychip.dto.ProductResponseDTO;
+import com.daniel.shopychip.dto.ProductPatchDTO;
 import com.daniel.shopychip.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -58,5 +59,14 @@ public class ProductController {
     public ResponseEntity<List<ProductResponseDTO>> getProductsByUser(@PathVariable Long userId) {
         List<ProductResponseDTO> products = productService.getProductsByUser(userId);
         return ResponseEntity.ok(products);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> patchProduct(
+            @PathVariable Long id,
+            @RequestBody ProductPatchDTO patchDTO,
+            @RequestParam Long userId) {
+        ProductResponseDTO updated = productService.patchProduct(id, patchDTO, userId);
+        return ResponseEntity.ok(updated);
     }
 }

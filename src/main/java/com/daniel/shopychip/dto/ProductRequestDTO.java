@@ -1,4 +1,5 @@
 package com.daniel.shopychip.dto;
+import com.daniel.shopychip.model.ProductCondition;
 
 import lombok.*;
 import jakarta.validation.constraints.*;
@@ -25,8 +26,8 @@ public class ProductRequestDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than zero")
     private BigDecimal price;
 
-    @NotBlank(message = "Condition is required")
-    private String condition;
+    @NotNull(message = "Condition is required")
+    private ProductCondition condition;
 
     private List<String> picturesUrls;
 
